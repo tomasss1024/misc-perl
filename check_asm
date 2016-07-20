@@ -6,6 +6,7 @@
 # *
 # * Copyright 2014 (c) Krzysztof Lewandowski (krzysztof.lewandowski@fastmail.fm)
 # * Copyright 2014 (c) Maciej Korzen (maciek@korzen.org)
+# * 2016 Tomasss (tomasss1024+github-misc-perl@gmail.com)
 # *
 # * Description: Nagios plug-in for Oracle ASM instance (11g and above)
 # *              It checks:
@@ -63,6 +64,11 @@
 # * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # *******************************************************************************
 
+# ***** CHANGELOG ***************************************************************
+# * 2016-07-20 Tomasss
+# *   Side note:
+# *   Added: for usedspace show only mounted diskgroup
+# *******************************************************************************
 # ***** CHANGELOG ***************************************************************
 # * 2014-08-01 Maciej Korzen
 # *   Side note:
@@ -156,7 +162,7 @@ select state, TOTAL_MB, USABLE_FILE_MB, NAME from v\\\$asm_diskgroup;
         $output_msg .= "($dgname: $rounded_used_space%: OK) ";
       }
     } else {
-      $output_msg .= "($dgname: $dgstate) ";
+      $output_msg .= "($dgname: $dgstate) " if ($dgstate != 'DISMOUNTED');
     }
     $output_perf .= "'" . $dgname . "'=" . $rounded_used_space . "%;" . $warnPerc . ";" . $critPerc . " ";
     # Once processed, we drop command line disk group and threshold
