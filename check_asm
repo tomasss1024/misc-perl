@@ -68,6 +68,7 @@
 # * 2016-07-20 Tomasss
 # *   Side note:
 # *   Added: for usedspace show only mounted diskgroup
+# *   Added: set default threshold for ALL (--threshold ALL_=90:95)
 # *******************************************************************************
 # ***** CHANGELOG ***************************************************************
 # * 2014-08-01 Maciej Korzen
@@ -91,8 +92,9 @@ my $output_perf = '';
 my $status = 'OK';
 my $action = '';
 my $help = '';
+my $debug = '';
 
-&usage unless GetOptions ('help' => \$help, 'asm_home=s' => \$asm_home, 'action=s' => \$action, 'threshold=s' => \%disk_groups_thresholds);
+&usage unless GetOptions ('help' => \$help, 'asm_home=s' => \$asm_home, 'action=s' => \$action, 'threshold=s' => \%disk_groups_thresholds, 'debug' => \$debug);
 
 usage() if $help; 
 
@@ -150,6 +152,7 @@ select state, TOTAL_MB, USABLE_FILE_MB, NAME from v\\\$asm_diskgroup;
       $used_space = ( ($totalmb-$freemb) / $totalmb ) * 100;
       $rounded_used_space = sprintf("%.2f", $used_space);
       ($warnPerc, $critPerc) = ($defWarnPerc, $defCritPerc);
+      ($warnPerc, $critPerc) = split /:/, $disk_groups_thresholds{'ALL_'} if ($disk_groups_thresholds{'ALL_'} );
       ($warnPerc, $critPerc) = split /:/, $disk_groups_thresholds{$dgname} if exists  $disk_groups_thresholds{$dgname};
 
       if ( $rounded_used_space >= $warnPerc && $rounded_used_space < $critPerc ) {
@@ -168,6 +171,7 @@ select state, TOTAL_MB, USABLE_FILE_MB, NAME from v\\\$asm_diskgroup;
     # Once processed, we drop command line disk group and threshold
     delete($disk_groups_thresholds{$dgname});
   }
+  delete($disk_groups_thresholds{'ALL_'});
 } 
 elsif( $action eq 'diskstatus' ) {
 
@@ -232,7 +236,7 @@ Usage: $0 --help --asm_home <ORACLE_HOME for ASM> --action <ACTION> --threshold 
 --help:         prints this info
 --asm_home:	ORACLE_HOME for asm instance
 --action:	status|dgstate|diskstatus|usedspace|alertlogerror
---threshold:	GROUP_DISK_NAME=WarnPerc:CritPerc - percentage threshold for used space (range [0..100]) - use for <usedspace> action
+--threshold:	GROUP_DISK_NAME=WarnPerc:CritPerc or ALL_=WarnPerc:CritPerc - percentage threshold for used space (range [0..100]) - use for <usedspace> action
 
 ];
    exit $nagios_exit_codes{'WARNING'};
