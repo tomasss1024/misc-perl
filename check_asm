@@ -68,6 +68,7 @@
 # * 2016-07-20 Tomasss
 # *   Side note:
 # *   Added: for usedspace show only mounted diskgroup
+# * 2016-08-05 Tomasss
 # *   Added: set default threshold for ALL (--threshold ALL_=90:95)
 # *******************************************************************************
 # ***** CHANGELOG ***************************************************************
